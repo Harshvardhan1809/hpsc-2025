@@ -38,8 +38,8 @@ __global__ void p_calc(float *p, float *pn, float *b){
 }
 
 __global__ void p_op_1(float *p){
-    p[threadIdx.x + nx - 1] = p[threadIdx.x + nx -2];
-    p[threadIdx.x] = p[threadIdx.x + 1];
+    p[threadIdx.x*nx + nx - 1] = p[threadIdx.x*nx + nx -2];
+    p[threadIdx.x*nx] = p[threadIdx.x*nx + 1];
 }
 
 __global__ void p_op_2(float *p){
@@ -77,15 +77,8 @@ __global__ void u_v_op_2(float *u, float *v){
 }
 
 int main() {
-//   nx = 41;
-//   ny = 41;
-//   nt = 500;
-//   nit = 50;
   dx = 2. / (nx - 1);
   dy = 2. / (ny - 1);
-//   dt = .01;
-//   rho = 1.;
-//   nu = .02;
 
   float *u, *v, *p, *b, *un, *vn, *pn;
   cudaMallocManaged(&u, ny*nx*sizeof(int));
@@ -106,7 +99,7 @@ int main() {
     b_calc<<<1, nx*ny>>>(b, u, v);
 
     for(int it=0; it<nit; it++){
-        pn_p_copy<<<1, nx*ny>>>(p, pn);
+        pn_p_copy<<<1, nx*ny>>>(pn, p);
         p_calc<<<1, nx*ny>>>(p, pn, b);
         p_op_1<<<1, ny>>>(p);
         p_op_2<<<1, nx>>>(p);
